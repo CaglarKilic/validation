@@ -1,4 +1,6 @@
 import "./style.css";
+import { getNames } from "country-list";
+import fuzzysort from "fuzzysort";
 
 (() => {
   const emailInput = document.querySelector("#email");
@@ -49,4 +51,52 @@ import "./style.css";
     }
   }
   emailInput.addEventListener("input", validateEmail);
+})();
+
+(() => {
+  const countryInput = document.querySelector("#country");
+  const dialog = document.querySelector("dialog");
+  const countries = getNames();
+
+  dialog.style.left = `${countryInput.offsetLeft}px`;
+  dialog.style.top = `${countryInput.offsetHeight + countryInput.offsetTop}px`;
+
+  function populateDialog(keyword) {
+    dialog.firstElementChild.replaceChildren();
+    const results = fuzzysort.go(keyword, countries, {
+      limit: 6,
+      threshold: -100,
+    });
+    results.forEach((result) => {
+      const li = document.createElement("li");
+      li.append(result.target);
+      dialog.firstElementChild.append(li);
+    });
+  }
+
+  function validateCountry(event) {
+    dialog.show();
+    populateDialog(event.target.value);
+    countryInput.nextElementSibling.replaceChildren();
+    event.target.focus();
+  }
+
+  countryInput.addEventListener("input", validateCountry);
+  dialog.addEventListener("click", (event) => {
+    countryInput.value = event.target.textContent;
+    dialog.close();
+  });
+  dialog.addEventListener("close", () => {
+    if (!countries.includes(countryInput.value)) {
+      countryInput.classList.add("invalid");
+      countryInput.nextElementSibling.append(
+        "Please select a country from the list"
+      );
+    } else {
+      countryInput.classList.remove("invalid");
+    }
+  });
+  document.addEventListener("click", () => {
+    dialog.close();
+  });
 })();
