@@ -6,8 +6,7 @@ import { validate } from "postal-codes-js";
 (() => {
   const emailInput = document.querySelector("#email");
   const emailPattern =
-    "^[\\w\\-]+(?:\\.[\\w\\-]+)*@[a-zA-Z\\d](?:-?[a-zA-z\\d])*(?:\\.[\\-a-zA-Z\\d]+)*\\.\\d*?[a-zA-Z](?:-?[a-zA-Z])*\\d?$";
-  emailInput.pattern = emailPattern;
+    /^[\w-]+(?:\.[\w-]+)*@[a-zA-Z\d](?:-?[a-zA-z\d])*(?:\.[-a-zA-Z\d]+)*\.\d*?[a-zA-Z](?:-?[a-zA-Z])*\d?$/;
   const check = {
     dot: { re: /\.\./, error: "Consecutive dots(..) are not allowed." },
     dotPos: {
@@ -40,7 +39,7 @@ import { validate } from "postal-codes-js";
   function validateEmail(event) {
     const errorBoard = event.target.nextElementSibling;
     errorBoard.replaceChildren();
-    if (event.target.validity.patternMismatch) {
+    if (!emailPattern.test(event.target.value)) {
       Object.keys(check).forEach((key) => {
         const match = event.target.value.match(check[key].re);
         if (match) {
@@ -49,6 +48,9 @@ import { validate } from "postal-codes-js";
           errorBoard.append(li);
         }
       });
+      event.target.setCustomValidity("Please fix this");
+    } else {
+      event.target.setCustomValidity("");
     }
   }
   emailInput.addEventListener("input", validateEmail);
@@ -83,18 +85,21 @@ import { validate } from "postal-codes-js";
   }
 
   countryInput.addEventListener("input", validateCountry);
+  countryInput.addEventListener("change", () => {
+    document.querySelector("#zip").value = "";
+  });
   dialog.addEventListener("click", (event) => {
     countryInput.value = event.target.textContent;
     dialog.close();
   });
   dialog.addEventListener("close", () => {
     if (!countries.includes(countryInput.value)) {
-      countryInput.classList.add("invalid");
+      countryInput.setCustomValidity("Please fix this.");
       countryInput.nextElementSibling.append(
         "Please select a country from the list"
       );
     } else {
-      countryInput.classList.remove("invalid");
+      countryInput.setCustomValidity("");
     }
   });
   document.addEventListener("click", () => {
@@ -111,6 +116,7 @@ import { validate } from "postal-codes-js";
     errorBoard.replaceChildren();
     if (countryInput.validity.customError || countryInput.value === "") {
       errorBoard.append("Please select a country first");
+      event.target.setCustomValidity("Plese fix this");
       // eslint-disable-next-line no-param-reassign
       event.target.value = "";
     } else {
@@ -118,6 +124,9 @@ import { validate } from "postal-codes-js";
       const val = validate(code, event.target.value);
       if (val !== true) {
         errorBoard.append(val);
+        event.target.setCustomValidity("Plese fix this");
+      } else {
+        event.target.setCustomValidity("");
       }
     }
   }
@@ -125,7 +134,7 @@ import { validate } from "postal-codes-js";
   zipInput.addEventListener("input", validateZip);
   countryInput.addEventListener("change", (event) => {
     if (!event.target.checkValidity()) {
-      event.target.setCustomValidity("Please enter a valid country");
+      event.target.setCustomValidity("Please fix this");
     } else {
       event.target.setCustomValidity("");
     }
@@ -140,8 +149,16 @@ import { validate } from "postal-codes-js";
 
   function validatePassword(event) {
     errorBoardPassword.replaceChildren();
-    if (event.target.validity.tooShort) {
+    if (event.target.value.length < 8) {
       errorBoardPassword.append("Please supply a minimum of 8 characters");
+      event.target.setCustomValidity("Please fix this");
+    } else {
+      event.target.setCustomValidity("");
+    }
+
+    if (event.target.value.length > 16) {
+      // eslint-disable-next-line no-param-reassign
+      event.target.value = event.target.value.slice(0, -1);
     }
   }
 
@@ -151,9 +168,8 @@ import { validate } from "postal-codes-js";
       errorBoardConfirm.append("Please enter a password first");
       // eslint-disable-next-line no-param-reassign
       event.target.value = "";
-    }
-
-    if (event.target.value !== password.value) {
+      event.target.setCustomValidity("Please fix this");
+    } else if (event.target.value !== password.value) {
       errorBoardConfirm.append("Passwords do not match");
       event.target.setCustomValidity("Please fix this");
     } else {
