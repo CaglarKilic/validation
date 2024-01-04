@@ -1,0 +1,50 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+
+li {
+  width: 200px;
+}
+
+body {
+  display: flex;
+  height: 100svh;
+  justify-content: center;
+  align-items: center;
+}
+
+form {
+  width: 200px;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+menu,
+span {
+  margin-top: -1rem;
+}
+
+dialog {
+  position: absolute;
+  height: min-content;
+  overflow: auto;
+  width: min-content;
+  font-size: 12px;
+  border: 1px solid lightgray;
+
+  li {
+    padding: 2px;
+  }
+
+  li:hover {
+    cursor: pointer;
+    background-color: lightblue;
+  }
+}
+
+input:invalid {
+  border-color: red;
+  outline-color: red;
+}
