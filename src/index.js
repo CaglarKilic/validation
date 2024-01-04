@@ -180,3 +180,20 @@ import { validate } from "postal-codes-js";
   password.addEventListener("input", validatePassword);
   confirm.addEventListener("input", validateConfirm);
 })();
+
+(() => {
+  document.querySelector("button").addEventListener("click", (event) => {
+    event.preventDefault();
+    const form = document.forms[0];
+    const valid = form.reportValidity();
+    if (valid) {
+      // eslint-disable-next-line no-alert
+      const submit = window.confirm(
+        "Everything appears to be in order, submit now?"
+      );
+      if (submit) {
+        form.submit();
+      }
+    }
+  });
+})();
