@@ -131,3 +131,36 @@ import { validate } from "postal-codes-js";
     }
   });
 })();
+
+(() => {
+  const password = document.querySelector("#password");
+  const confirm = document.querySelector("#confirm");
+  const errorBoardPassword = password.nextElementSibling;
+  const errorBoardConfirm = confirm.nextElementSibling;
+
+  function validatePassword(event) {
+    errorBoardPassword.replaceChildren();
+    if (event.target.validity.tooShort) {
+      errorBoardPassword.append("Please supply a minimum of 8 characters");
+    }
+  }
+
+  function validateConfirm(event) {
+    errorBoardConfirm.replaceChildren();
+    if (password.value === "") {
+      errorBoardConfirm.append("Please enter a password first");
+      // eslint-disable-next-line no-param-reassign
+      event.target.value = "";
+    }
+
+    if (event.target.value !== password.value) {
+      errorBoardConfirm.append("Passwords do not match");
+      event.target.setCustomValidity("Please fix this");
+    } else {
+      event.target.setCustomValidity("");
+    }
+  }
+
+  password.addEventListener("input", validatePassword);
+  confirm.addEventListener("input", validateConfirm);
+})();
