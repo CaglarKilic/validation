@@ -1,6 +1,7 @@
 import "./style.css";
-import { getNames } from "country-list";
+import { getCode, getNames } from "country-list";
 import fuzzysort from "fuzzysort";
+import { validate } from "postal-codes-js";
 
 (() => {
   const emailInput = document.querySelector("#email");
@@ -98,5 +99,35 @@ import fuzzysort from "fuzzysort";
   });
   document.addEventListener("click", () => {
     dialog.close();
+  });
+})();
+
+(() => {
+  const zipInput = document.querySelector("#zip");
+  const countryInput = document.querySelector("#country");
+  const errorBoard = zipInput.nextElementSibling;
+
+  function validateZip(event) {
+    errorBoard.replaceChildren();
+    if (countryInput.validity.customError || countryInput.value === "") {
+      errorBoard.append("Please select a country first");
+      // eslint-disable-next-line no-param-reassign
+      event.target.value = "";
+    } else {
+      const code = getCode(countryInput.value);
+      const val = validate(code, event.target.value);
+      if (val !== true) {
+        errorBoard.append(val);
+      }
+    }
+  }
+
+  zipInput.addEventListener("input", validateZip);
+  countryInput.addEventListener("change", (event) => {
+    if (!event.target.checkValidity()) {
+      event.target.setCustomValidity("Please enter a valid country");
+    } else {
+      event.target.setCustomValidity("");
+    }
   });
 })();
